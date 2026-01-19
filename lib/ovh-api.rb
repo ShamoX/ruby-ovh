@@ -1,8 +1,6 @@
+# rubocop:disable Naming/FileName
 # frozen_string_literal: true
 
-module OVHApi
-end
+require 'ovh_api'
 
-require 'ovh-api/version'
-require 'ovh-api/exceptions'
-require 'ovh-api/client'
+# rubocop:enable Naming/FileName
