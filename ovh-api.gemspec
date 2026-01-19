@@ -7,7 +7,7 @@ require 'ovh-api/version'
 require 'date'
 
 Gem::Specification.new do |s|
-  spec.required_ruby_version = '>= 3.0'
+  s.required_ruby_version = '>= 3.0'
   s.name          = 'ovh-api'
   s.version       = OVHApi::VERSION
   s.summary       = 'OVH API v6 wrapper'
