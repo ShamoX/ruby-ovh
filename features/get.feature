@@ -1,4 +1,4 @@
-Feature: Get
+Feature: Get v1
   In order to Get my resources on OVH
   As a OVH customer
   I want to make Get to the OVH API

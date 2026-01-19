@@ -1,22 +1,23 @@
 # frozen_string_literal: true
 
-Given(/^I created an OVH client with my credentials$/) do
+Given(/^I created an OVH client with my credentials and switched to v2$/) do
   # pending # Write code here that turns the phrase above into concrete actions
 
   @client = OVHApi::Client.new(application_key: 'app_key', application_secret: 'app_secret',
                                consumer_key: 'consumer_key')
 end
 
-When(%r{^I get '/me' with the sdk$}) do
+When(%r{^I get '/iam/permissionsGroup' with the sdk$}) do
   # pending # Write code here that turns the phrase above into concrete actions
-  stub_request(:get, 'https://eu.api.ovh.com/v1/me')
+  stub_request(:get, 'https://eu.api.ovh.com/v2/iam/permissionsGroup')
   allow(Time).to receive(:now).and_return(Time.mktime(2010, 10, 8))
-  @client.get('/me')
+  @client.switch_to(:v2)
+  @client.get('/iam/permissionsGroup')
 end
 
-Then(%r{^I should call the '/me' method of the http API$}) do
+Then(/^I should have called the v2 base url$/) do
   # pending # Write code here that turns the phrase above into concrete actions
-  expect(WebMock).to have_requested(:get, 'https://eu.api.ovh.com/v1/me')
+  expect(WebMock).to have_requested(:get, 'https://eu.api.ovh.com/v2/iam/permissionsGroup')
     .with(headers: {
             'Accept' => 'application/json',
             'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
