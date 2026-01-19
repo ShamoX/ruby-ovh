@@ -26,7 +26,7 @@ Then(/^I should have called the v2 base url$/) do
             'User-Agent' => 'Ruby',
             'X-Ovh-Application' => 'app_key',
             'X-Ovh-Consumer' => 'consumer_key',
-            'X-Ovh-Signature' => '$1$c1635742d2635391138e135e04a78d268e20232d',
+            'X-Ovh-Signature' => '$1$1cd4294e08d11cb6150d4610c57e00048d592248',
             'X-Ovh-Timestamp' => '1286488800'
           })
 end

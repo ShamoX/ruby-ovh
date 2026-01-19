@@ -2,6 +2,8 @@
 
 module OVHApi
   class OVHApiError < RuntimeError; end
+
+  class OVHApiBadVersionError < OVHApiError; end
   class OVHApiNotConfiguredError < OVHApiError; end
   class OVHApiNotImplementedError < OVHApiError; end
   class OVHApiParseError < OVHApiError; end

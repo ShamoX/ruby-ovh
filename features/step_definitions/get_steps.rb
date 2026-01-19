@@ -25,7 +25,7 @@ Then(%r{^I should call the '/me' method of the http API$}) do
             'User-Agent' => 'Ruby',
             'X-Ovh-Application' => 'app_key',
             'X-Ovh-Consumer' => 'consumer_key',
-            'X-Ovh-Signature' => '$1$c1635742d2635391138e135e04a78d268e20232d',
+            'X-Ovh-Signature' => '$1$283c89ca5be74d2d73ab039c451bb8dea15a9ce4',
             'X-Ovh-Timestamp' => '1286488800'
           })
 end
