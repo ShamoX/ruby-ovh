@@ -34,7 +34,10 @@ module OVHApi
 
     # Request a consumer key
     #
-    # @param [Hash] access_rules
+    # @param [Array<Hash<OVHAccessRules>>] access_rules
+    #   OVHAccessRules are defined as white list of allowed actions:
+    #     - method: GET, POST, PUT, DELETE
+    #     - path: the path on which the authorization rules apply to
     # @return [Hash] the JSON response
     def request_consumerkey(access_rules)
       headers = {
@@ -42,7 +45,7 @@ module OVHApi
         'Content-type' => 'application/json'
       }
 
-      resp = request_json(:post, '/1.0/auth/credential', access_rules.to_json, headers)
+      resp = request_json(:post, '/1.0/auth/credential', nil, access_rules.to_json, headers)
 
       @consumer_key = resp['consumerKey']
       @consumer_key
