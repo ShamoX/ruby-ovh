@@ -1,5 +1,7 @@
-require "net/https"
-require "uri"
+# frozen_string_literal: true
+
+require 'net/https'
+require 'uri'
 require 'json'
 require 'yaml'
 require 'digest/sha1'
@@ -8,7 +10,6 @@ require 'digest/sha1'
 module OVHApi
   # Main class
   class Client
-
     HOST = 'eu.api.ovh.com'
     attr_reader :application_key, :application_secret, :consumer_key
 
@@ -24,8 +25,10 @@ module OVHApi
         @consumer_key       = consumer_key
       end
 
-      raise OVHApiNotConfiguredError.new(
-        "Either instantiate Client.new with application_key and application_secret, or create a YAML file in config/ovh-api.yml with those values set") if @application_key.nil? || @application_secret.nil?
+      return unless @application_key.nil? || @application_secret.nil?
+
+      raise OVHApiNotConfiguredError,
+            'Either instantiate Client.new with application_key and application_secret, or create a YAML file in config/ovh-api.yml with those values set'
     end
 
     # Request a consumer key
@@ -39,7 +42,7 @@ module OVHApi
 
       headers = {
         'X-Ovh-Application' => @application_key,
-        'Content-type'      => 'application/json'
+        'Content-type' => 'application/json'
       }
 
       resp = http.post('/1.0/auth/credential', access_rules.to_json, headers)
@@ -47,9 +50,9 @@ module OVHApi
         body_hash = JSON.parse(resp.body)
         @consumer_key = body_hash['consumerKey']
 
-        return resp, body_hash["validationUrl"]
+        [resp, body_hash['validationUrl']]
       rescue JSON::ParserError
-        return resp
+        resp
       end
     end
 
@@ -60,11 +63,9 @@ module OVHApi
     # @param timestamp [String]
     # @param body [String]
     #
-    def get_signature(url, method, timestamp, body = "")
-      signature = "$1$#{Digest::SHA1.hexdigest("#{application_secret}+#{consumer_key}+#{method}+https://#{HOST}/1.0#{url}+#{body}+#{timestamp}")}"
-      signature
+    def get_signature(url, method, timestamp, body = '')
+      "$1$#{Digest::SHA1.hexdigest("#{application_secret}+#{consumer_key}+#{method}+https://#{HOST}/1.0#{url}+#{body}+#{timestamp}")}"
     end
-
 
     # Helper to make a request to the OVH api then return the body as parsed JSON tree
     #
@@ -78,24 +79,25 @@ module OVHApi
     # @param body [String]: function parameters to be JSONified and sent as body in the request
     # @return [Hash] { :resp => [Net::HTTPResponse] response, :body => [Hash|NilClass] (:resp body JSON parsed)  }
     def request_json(method, path, arguments = nil, body = '')
-      raise OVHApiNotImplementedError.new(
-        "#{method.to_s} is not implemented. Please refere to documentation."
-      ) unless [:get, :post, :delete, :put].include?method
-      method_str = method.to_s.upcase
-      if arguments.nil? then
-        url = path
-      else
-        url = "#{path}?#{URI.encode_www_form(arguments)}"
+      unless %i[get post delete put].include? method
+        raise OVHApiNotImplementedError, "#{method} is not implemented. Please refere to documentation."
       end
+
+      method_str = method.to_s.upcase
+      url = if arguments.nil?
+              path
+            else
+              "#{path}?#{URI.encode_www_form(arguments)}"
+            end
       resp = request(url, method_str, body)
       body = nil
       begin
         body = JSON.parse(resp.body)
-      rescue
+      rescue StandardError
       end
-      return {
-        :resp => resp,
-        :body => body
+      {
+        resp: resp,
+        body: body
       }
     end
 
@@ -104,9 +106,7 @@ module OVHApi
     # @param url [String]
     # @return [Net::HTTPResponse] response
     def get(url)
-
       request(url, 'GET', '')
-
     end
 
     # Make a post request to the OVH api
@@ -115,9 +115,7 @@ module OVHApi
     # @param body [String]
     # @return [Net::HTTPResponse] response
     def post(url, body)
-
       request(url, 'POST', body)
-
     end
 
     # Make a put request to the OVH api
@@ -126,25 +124,22 @@ module OVHApi
     # @param body [String]
     # @return [Net::HTTPResponse] response
     def put(url, body)
-
       request(url, 'PUT', body)
     end
-
 
     # Make a delete request to the OVH api
     #
     # @param url [String]
     # @return [Net::HTTPResponse] response
     def delete(url)
-
       request(url, 'DELETE', '')
-
     end
 
     def request(url, method, body)
-
-      raise OVHApiNotConfiguredError.new(
-        "You cannot call Client#request without a consumer_key, please use the Client#request_consumerkey method to get one, and validate it with you credential by following the link, and/or save the consumer_key value in the YAML file in config/ovh-api.yml") if @consumer_key.nil?
+      if @consumer_key.nil?
+        raise OVHApiNotConfiguredError,
+              'You cannot call Client#request without a consumer_key, please use the Client#request_consumerkey method to get one, and validate it with you credential by following the link, and/or save the consumer_key value in the YAML file in config/ovh-api.yml'
+      end
 
       uri = ::URI.parse("https://#{HOST}")
       http = ::Net::HTTP.new(uri.host, uri.port)
@@ -153,13 +148,13 @@ module OVHApi
       timestamp = Time.now.to_i
 
       headers = {
-        'Host'              => HOST,
-        'Accept'            => 'application/json',
-        'Content-Type'      => 'application/json',
+        'Host' => HOST,
+        'Accept' => 'application/json',
+        'Content-Type' => 'application/json',
         'X-Ovh-Application' => application_key,
-        'X-Ovh-Timestamp'   => timestamp.to_s,
-        'X-Ovh-Signature'   => get_signature(url, method, timestamp.to_s, body),
-        'x-Ovh-Consumer'    => consumer_key
+        'X-Ovh-Timestamp' => timestamp.to_s,
+        'X-Ovh-Signature' => get_signature(url, method, timestamp.to_s, body),
+        'x-Ovh-Consumer' => consumer_key
       }
 
       http.send_request(method, "/1.0#{url}", body, headers)
