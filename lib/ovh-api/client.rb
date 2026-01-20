@@ -41,7 +41,7 @@ module OVHApi
         'Content-type' => 'application/json'
       }
 
-      resp = request_json(:post, '/1.0/auth/credential', nil, access_rules.to_json, headers)
+      resp = request_json('/auth/credential', :post, nil, access_rules.to_json, headers)
 
       @consumer_key = resp['consumerKey']
       @consumer_key
@@ -157,9 +157,12 @@ module OVHApi
 
     # Building the http_client for the request
     def build_http_client
+      require 'openssl'
       uri = ::URI.parse("https://#{@host}")
       http = ::Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
+      # fixing issue on MacOS should work also on Linux.
+      http.ca_file = OpenSSL::X509::DEFAULT_CERT_FILE
       http
     end
 
